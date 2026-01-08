@@ -1,15 +1,15 @@
-# Linear Regression & GLMs — FAANG-Level Hands-On
+# Logistic Regression & Calibration — FAANG-Level Hands-On
 
-**Goal:** Build strong, interview-ready intuition for linear regression, regularization, and GLM thinking (loss functions, link functions, assumptions).
+**Goal:** Treat probabilistic outputs as first-class: calibration, class imbalance, thresholding, and metric tradeoffs.
 
-**Outcome:** Students can implement linear regression from scratch (closed-form + GD), reason about bias/variance + regularization, and connect GLMs to real ML problems.
+**Outcome:** Students can implement logistic regression predictions, compute calibration diagnostics (reliability curve, ECE), and reason about imbalanced evaluation (PR vs ROC) like a FAANG ML engineer.
 
 ---
 
 # How to Start
 
 1. **Fork** this repository.  
-2. Open `linreg_student_lab.ipynb` in **Google Colab**.  
+2. Open `calibration_student_lab.ipynb` in **Google Colab**.  
 3. Complete all **TODO** sections.  
 4. **Restart runtime → Run All** cells.  
 5. Push changes and submit a **Pull Request**.  
@@ -20,18 +20,16 @@
 
 ## Lab Rules (FAANG Style)
 
-- ✅ Track shapes (`X (n,d)`, `w (d,)`, `y (n,)`)
-- ✅ Compare closed-form vs gradient descent
-- ✅ Always include a baseline + error analysis
-- ✅ Avoid data leakage in feature creation (time-split thinking)
-- ❌ No scikit-learn for the core tasks
+- ✅ Always separate ranking quality (ROC-AUC) from probability quality (calibration)
+- ✅ For imbalanced problems, always look at PR-AUC and threshold metrics
+- ✅ Use reliability diagrams and ECE as calibration signals
+- ✅ Discuss business cost tradeoffs for thresholds
 
 ---
 
 # Out of Scope
 
-- Full production training pipelines
-- Deep statistical proofs
+- scikit-learn calibration utilities (we implement core metrics ourselves)
 
 ---
 
@@ -46,115 +44,87 @@
 
 # Dataset
 
-- Synthetic regression data (controlled noise + collinearity)
+- Synthetic imbalanced binary classification + probability-shift scenarios
 
 ## Why?
 
-- Removes dataset distractions
-- Lets us stress-test conditioning and regularization
+- Lets us control imbalance and miscalibration
+- Mirrors real-world deployment failures
 
 ---
 
-## Section 1 — Ordinary Least Squares (OLS)
+## Section 1 — Metrics Refresher (ROC/PR)
 
-### Task 1.1: Closed-form solution using `solve`
+### Task 1.1: Implement confusion-matrix metrics
 
-- Implement `w_hat = (X^T X)^{-1} X^T y` using `np.linalg.solve`
+- precision, recall, F1
 
 **Checkpoint Questions:**
 
-- Why prefer `solve` over explicit inverse?
-- When is `X^T X` singular or ill-conditioned?
+- Why can accuracy be misleading under imbalance?
 
 ---
 
-### Task 1.2: Evaluate fit + residuals
-
-- Compute MSE
-- Plot/inspect residual distribution
+### Task 1.2: ROC-AUC vs PR-AUC intuition
 
 **Interview Angle:**
 
-- What does a non-random residual pattern imply?
+- When is PR-AUC the right metric?
 
 ---
 
-## Section 2 — Gradient Descent for Linear Regression
+## Section 2 — Calibration
 
-### Task 2.1: Implement MSE loss + gradient
+### Task 2.1: Reliability curve + ECE
 
 **FAANG Gotcha:**
 
-- Missing constants (2/n)
-- Shape bugs in gradients
+- A good ROC-AUC model can be poorly calibrated.
 
 ---
 
-### Task 2.2: Train with GD + compare to closed-form
+### Task 2.2: Temperature scaling (simple)
+
+- Fit a single scalar temperature T on a validation split
 
 **Checkpoint Questions:**
 
-- What controls convergence speed?
-- How does feature scaling affect GD?
+- Why does temperature scaling preserve ranking but change calibration?
 
 ---
 
-## Section 3 — Regularization (Ridge)
+## Section 3 — Thresholding & Costs
 
-### Task 3.1: Ridge closed-form
-
-- `w = (X^T X + λI)^{-1} X^T y`
+### Task 3.1: Choose threshold for a cost function
 
 **Interview Angle:**
 
-- Why does ridge help with collinearity?
-
----
-
-### Task 3.2: Bias/variance demonstration
-
-- Compare train vs test error under different λ
-
----
-
-## Section 4 — GLM Intuition
-
-### Task 4.1: Map problems to (distribution, link)
-
-- Linear regression: Gaussian + identity link
-- Logistic regression: Bernoulli + logit link
-- Poisson regression: count + log link
-
-**Checkpoint Questions:**
-
-- What changes: loss or model form?
+- Translate model outputs to business decisions.
 
 ---
 
 ## Submission Expectations
 
-Students must submit:
-
 - Completed notebook
-- Short answers to checkpoint questions
-- A brief comparison: closed-form vs GD vs ridge
+- Short written answers to checkpoint questions
+- A short recommendation: metric + threshold for the scenario
 
 ---
 
 ## FAANG Interview Evaluation Rubric
 
-| Skill                          | Evaluated |
-|--------------------------------|-----------|
-| Correctness                    | ✅        |
-| Optimization intuition         | ✅        |
-| Regularization intuition       | ✅        |
-| Error analysis                 | ✅        |
-| Explanation clarity            | ✅        |
+| Skill                     | Evaluated |
+|---------------------------|-----------|
+| Metric selection          | ✅        |
+| Calibration intuition     | ✅        |
+| Threshold reasoning       | ✅        |
+| Code correctness          | ✅        |
+| Explanation clarity       | ✅        |
 
 ---
 
 ## Stretch Problems (Optional)
 
-- Add L1 regularization via coordinate descent (bonus)
-- Implement polynomial features + ridge
-- Show instability under collinearity without ridge
+- Implement Brier score
+- Compare isotonic vs temperature scaling (conceptually)
+- Build slice-based calibration analysis
